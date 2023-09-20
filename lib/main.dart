@@ -4,7 +4,12 @@ import 'screen/tasks_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TaskData(), // Creating a provider for TaskData
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -13,12 +18,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => TaskData(), // Creating a provider for TaskData
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: TasksScreen(),
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: TasksScreen(),
     );
   }
 }
