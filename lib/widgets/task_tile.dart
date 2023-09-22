@@ -1,12 +1,16 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:todo/api.dart';
+import 'package:todo/models/task.dart';
 
 class TaskTile extends StatelessWidget {
   final bool isChecked;
   final String taskTitle;
-  final DateTime? completionDate; // Add completionDate property
+  final DateTime? completionDate;
   final void Function(bool?) checkboxChange;
   final void Function() listTileDelete;
+  final Task task; // Add a parameter to store the task
 
   TaskTile({
     required this.isChecked,
@@ -14,6 +18,7 @@ class TaskTile extends StatelessWidget {
     required this.completionDate,
     required this.checkboxChange,
     required this.listTileDelete,
+    required this.task, // Add a required parameter for the task
   });
 
   @override
@@ -28,7 +33,7 @@ class TaskTile extends StatelessWidget {
               decoration: isChecked ? TextDecoration.lineThrough : null,
             ),
           ),
-          if (completionDate != null) // Display completion date if it exists
+          if (completionDate != null)
             Text(
               'Completed on ${DateFormat('yyyy-MM-dd HH:mm:ss').format(completionDate!)}',
               style: TextStyle(
@@ -41,17 +46,35 @@ class TaskTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          GestureDetector(
-            onTap: listTileDelete,
-            child: Icon(
-              Icons.delete,
-              color: Colors.red,
-            ),
+          IconButton(
+            icon:
+                Icon(Icons.delete, color: Colors.red), // Add an info icon here
+            onPressed: () {
+              AwesomeDialog(
+                context: context,
+                dialogType: DialogType.error,
+                animType: AnimType.topSlide,
+                title: 'Important',
+                desc: 'Are you sure you want to delete this task permanently?',
+                btnCancelOnPress: () {},
+                btnOkOnPress: () {
+                  listTileDelete();
+                },
+              ).show();
+            },
           ),
           Checkbox(
             activeColor: Colors.teal[400],
             value: isChecked,
-            onChanged: checkboxChange,
+            onChanged: (newValue) async {
+              // Update the local task immediately
+              checkboxChange(newValue);
+
+              // Then, update the API by calling the updateTaskInAPI function
+              if (newValue != null) {
+                await updateTaskInAPI(task, newValue);
+              }
+            },
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo/api.dart';
 import 'package:todo/models/task_data.dart';
 import 'package:todo/screen/add_task_screen.dart';
 import 'package:todo/widgets/tasks_list.dart';
@@ -56,6 +57,7 @@ class _TasksScreenState extends State<TasksScreen> {
                           onSelected: (value) {
                             // Handle menu item selection here
                             if (value == 'All') {
+                              getNotes();
                               // Navigate to TasksScreen
                               Navigator.push(
                                 context,
@@ -150,9 +152,7 @@ class _TasksScreenState extends State<TasksScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // You can leave this space empty if needed
-              ],
+              children: [],
             ),
           ),
           SizedBox(height: 10),
@@ -166,7 +166,7 @@ class _TasksScreenState extends State<TasksScreen> {
                 ),
               ),
               child: TasksList(
-                tasks: filteredTasks, // Pass the filtered tasks here
+                tasks: filteredTasks,
               ),
             ),
           ),

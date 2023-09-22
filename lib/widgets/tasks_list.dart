@@ -5,30 +5,30 @@ import 'package:provider/provider.dart';
 import 'package:todo/models/task_data.dart';
 
 class TasksList extends StatelessWidget {
-  final List<Task>? tasks; // Make tasks an optional parameter
+  final List<Task>? tasks;
 
-  TasksList({this.tasks}); // Update the constructor
+  TasksList({this.tasks});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<TaskData>(
       builder: (context, taskData, child) {
-        final tasksToDisplay = tasks ??
-            taskData
-                .tasks; // Use tasks if provided, otherwise use taskData.tasks
+        final tasksToDisplay = tasks ?? taskData.tasks;
         return ListView.builder(
           itemCount: tasksToDisplay.length,
           itemBuilder: (context, index) {
+            final task = tasksToDisplay[index];
             return TaskTile(
-              isChecked: tasksToDisplay[index].isDone,
-              taskTitle: tasksToDisplay[index].name,
-              completionDate: tasksToDisplay[index].completionDate,
+              isChecked: task.done,
+              taskTitle: task.name,
+              completionDate: task.completionDate,
               checkboxChange: (newValue) {
-                taskData.updateTask(tasksToDisplay[index]);
+                taskData.updateTask(task);
               },
               listTileDelete: () {
-                taskData.deleteTask(tasksToDisplay[index]);
+                taskData.deleteTask(task);
               },
+              task: task, // Pass the 'task' parameter here
             );
           },
         );

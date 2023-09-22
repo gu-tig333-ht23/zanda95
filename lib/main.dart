@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:todo/api.dart';
 import 'package:todo/models/task_data.dart';
-import 'screen/tasks_screen.dart';
+import 'package:todo/screen/tasks_screen.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+Future<void> main() async {
+  List<Note> notes = await getNotes();
   runApp(
     ChangeNotifierProvider(
-      create: (context) => TaskData(), // Creating a provider for TaskData
-      child: MyApp(),
+      create: (context) =>
+          TaskData(notes), // Pass the fetched notes to TaskData
+      child: const MyApp(),
     ),
   );
 }
