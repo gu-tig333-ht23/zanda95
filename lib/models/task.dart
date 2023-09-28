@@ -1,16 +1,15 @@
 class Task {
+  final String id;
   final String name;
-  bool isDone;
-  DateTime? removalDate; // New property to store the removal date
-  DateTime? completionDate; // Add completionDate property
+  bool done;
+  DateTime? removalDate;
+  DateTime? completionDate;
 
-  Task(
-      {required this.name,
-      this.isDone = false,
-      this.removalDate,
-      this.completionDate});
-
-  void doneChange() {
-    isDone = !isDone;
-  }
+  Task({
+    required this.id,
+    required this.name,
+    this.done = false,
+    this.removalDate,
+    this.completionDate,
+  });
 }

@@ -1,31 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:todo/api.dart';
 import 'package:todo/models/task.dart';
 
 class TaskData extends ChangeNotifier {
   TaskFilter currentFilter = TaskFilter.All;
-  List<Task> tasks = [
-    Task(name: 'Buy milk'),
-    Task(name: 'Buy eggs'),
-    Task(name: 'Buy bread'),
-  ];
+  List<Task> tasks = [];
+  List<Task> completedTasks = [];
+  List<Task> removedTasks = [];
 
-  List<Task> completedTasks = []; // Added completedTasks list
-  List<Task> removedTasks = []; // Added removedTasks list
+  TaskData([List<Note>? notes])
+      : tasks = notes != null
+            ? notes
+                .map((note) => Task(
+                      id: note.id,
+                      name: note.title,
+                      done: note.done,
+                    ))
+                .toList()
+            : [];
 
-  void addTask(String newTaskTitle) {
-    tasks.add(Task(name: newTaskTitle));
+  Future<void> addTask(String newTaskTitle) async {
+    final newTask = Task(id: UniqueKey().toString(), name: newTaskTitle);
+
+    // Add the new task to the local tasks list
+    tasks.add(newTask);
+
     notifyListeners();
   }
 
-  void updateTask(Task task) {
-    task.doneChange();
-    if (task.isDone) {
-      task.completionDate = DateTime.now(); // Set the completion date
-      completedTasks.add(task); // Move completed task to completedTasks list
+  Future<void> updateTask(Task task) async {
+    task.done = !task.done;
+
+    // Update the task in the API
+    await updateTaskInAPI(task, task.done);
+
+    if (task.done) {
+      task.completionDate = DateTime.now();
+      completedTasks.add(task);
     } else {
-      task.completionDate = null; // Clear the completion date
-      completedTasks.remove(task); // Remove from completedTasks if not done
+      task.completionDate = null;
+      completedTasks.remove(task);
     }
+
     notifyListeners();
   }
 
@@ -33,11 +49,15 @@ class TaskData extends ChangeNotifier {
     tasks.remove(task);
     task.removalDate = DateTime.now(); // Set the removal date
     removedTasks.add(task);
+
+    // Call the removeTaskInAPI function to remove the task from the API
+    removeTaskInAPI(task);
+
     notifyListeners();
   }
 
   void restoreTask(Task task) {
-    tasks.add(task); // Restore task to tasks list
+    tasks.add(task);
     removedTasks.remove(task);
     notifyListeners();
   }
