@@ -1,84 +1,96 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:todo/api.dart';
-import 'package:todo/models/task.dart';
+import 'package:provider/provider.dart';
+import 'package:todo/main.dart';
+import '../models/task.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
-class TaskTile extends StatelessWidget {
-  final bool isChecked;
-  final String taskTitle;
-  final DateTime? completionDate;
-  final void Function(bool?) checkboxChange;
-  final void Function() listTileDelete;
-  final Task task; // Add a parameter to store the task
+// Task Tile Widget to display individual tasks in the list
+class ToDoTile extends StatelessWidget {
+  final Task task;
 
-  TaskTile({
-    required this.isChecked,
-    required this.taskTitle,
-    required this.completionDate,
-    required this.checkboxChange,
-    required this.listTileDelete,
-    required this.task, // Add a required parameter for the task
+// Constructor to initialize the task property
+  const ToDoTile({
+    super.key,
+    required this.task,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            taskTitle,
-            style: TextStyle(
-              decoration: isChecked ? TextDecoration.lineThrough : null,
+    final toDoTask = context.watch<ToDoTask>();
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 25.0, top: 25.0, right: 25.0),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            // Checkbox to mark task as done or undone
+            GestureDetector(
+              onTap: () {
+                toDoTask.checkBoxChanged(task);
+              },
+              child: !task.isCompleted // CHECKBOX DESIGN
+                  ? const Icon(
+                      Icons.radio_button_unchecked,
+                      color: Colors.grey,
+                    )
+                  : const Icon(
+                      Icons.check_circle,
+                      color: primaryColor,
+                    ),
             ),
-          ),
-          if (completionDate != null)
-            Text(
-              'Completed on ${DateFormat('yyyy-MM-dd HH:mm:ss').format(completionDate!)}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
+            // Task name
+            // Expanded widget to make the text take up as much space as possible
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  task.tName,
+                  style: TextStyle(
+                    color: task.isCompleted
+                        ? primaryColor
+                        : Color.fromARGB(255, 61, 56, 56),
+                    decoration: task.isCompleted
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                  ),
+                ),
               ),
             ),
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon:
-                Icon(Icons.delete, color: Colors.red), // Add an info icon here
-            onPressed: () {
-              AwesomeDialog(
-                context: context,
-                dialogType: DialogType.error,
-                animType: AnimType.topSlide,
-                title: 'Important',
-                desc: 'Are you sure you want to delete this task permanently?',
-                btnCancelOnPress: () {},
-                btnOkOnPress: () {
-                  listTileDelete();
+            // Delete Button
+            // Container to add a border around the icon
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white),
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: IconButton(
+                icon: Icon(Icons.close, color: Colors.white),
+                onPressed: () {
+                  // Display confirmation dialog before deleting the task
+                  AwesomeDialog(
+                    context: context,
+                    dialogType: DialogType.error,
+                    animType: AnimType.bottomSlide,
+                    title:
+                        'Are you sure you want to delete this task permanently?',
+                    btnCancelOnPress: () {},
+                    btnOkOnPress: () {
+                      toDoTask.deleteTask(task);
+                    },
+                  ).show();
                 },
-              ).show();
-            },
-          ),
-          Checkbox(
-            activeColor: Colors.teal[400],
-            value: isChecked,
-            onChanged: (newValue) async {
-              // Update the local task immediately
-              checkboxChange(newValue);
-
-              // Then, update the API by calling the updateTaskInAPI function
-              if (newValue != null) {
-                await updateTaskInAPI(task, newValue);
-              }
-            },
-          ),
-        ],
+              ),
+            ),
+          ],
+        ),
       ),
-      onLongPress: listTileDelete,
     );
   }
 }

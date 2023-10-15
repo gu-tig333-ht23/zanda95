@@ -1,29 +1,35 @@
+// Importing necessary packages and files
 import 'package:flutter/material.dart';
-import 'package:todo/api.dart';
-import 'package:todo/models/task_data.dart';
-import 'package:todo/screen/tasks_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:todo/models/task.dart';
+import 'package:todo/screen/home_screen.dart';
 
-Future<void> main() async {
-  List<Note> notes = await getNotes();
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) =>
-          TaskData(notes), // Pass the fetched notes to TaskData
-      child: const MyApp(),
-    ),
-  );
+// Primary color for the app
+const Color primaryColor = Color(0xFF674AEF);
+
+void main() {
+  // Creating an instance of ToDoTask class
+  ToDoTask state = ToDoTask();
+
+  // Fetching the task list from the API
+  state.fetchList();
+
+  // Running the app with ChangeNotifierProvider to manage the state
+  runApp(ChangeNotifierProvider(
+    create: (context) => state,
+    child: const MyApp(),
+  ));
 }
 
+// MyApp class, the root widget of the application
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
-  // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: TasksScreen(),
+      home: HomeScreen(), // Setting the home page to HomePage widget
     );
   }
 }
