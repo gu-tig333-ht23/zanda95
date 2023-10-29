@@ -174,30 +174,12 @@ class _HomePageState extends State<HomeScreen> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            // Show the add task dialog when the button is pressed
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Dialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: SizedBox(
-                    width: 300,
-                    height: 300,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child:
-                              AddTask(), // Assuming AddTask is a widget for adding a task
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            // Show the add task screen when the button is pressed
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddTask(),
+              ),
             );
           },
           backgroundColor: primaryColor,
